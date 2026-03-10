@@ -18,17 +18,20 @@ box-sizing:border-box;
 
 body{
 font-family:Poppins,sans-serif;
-height:100vh;
+min-height:100vh;
 display:flex;
 justify-content:center;
-align-items:center;
+align-items:flex-start; /* para hindi matakpan sa taas */
+
+padding-top:40px; /* space sa taas */
+
 background:linear-gradient(135deg,#1e3a8a,#9333ea);
 }
 
 .phone{
 
 width:370px;
-height:740px;
+max-width:95%;
 
 background:rgba(255,255,255,0.08);
 backdrop-filter:blur(20px);
@@ -47,6 +50,7 @@ flex-direction:column;
 .header{
 text-align:center;
 margin-bottom:20px;
+margin-top:10px;
 }
 
 .header h1{
@@ -60,7 +64,6 @@ opacity:.7;
 }
 
 .inputBox{
-
 margin-top:15px;
 }
 
@@ -145,7 +148,7 @@ opacity:.8;
 
 font-family:"Noto Sans Tagalog";
 
-font-size:40px;
+font-size:22px;
 
 line-height:1.6;
 
@@ -161,8 +164,13 @@ font-size:11px;
 
 margin-top:10px;
 
-opacity:.6;
+opacity:.7;
 
+}
+
+.creator{
+margin-top:4px;
+color:#38bdf8;
 }
 
 </style>
@@ -209,10 +217,10 @@ oninput="translateText()"
 
 Ancient Filipino Writing System
 
-</div>
-  
 <div class="creator">
-Developed by Erick Clavero
+Developed by Erick Baliber
+</div>
+
 </div>
 
 </div>
@@ -287,4 +295,4 @@ alert("Copied!");
 </script>
 
 </body>
-</html>
+  </html>
