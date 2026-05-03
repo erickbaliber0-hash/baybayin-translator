@@ -1,214 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Baybayin Translator</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Noto+Sans+Tagalog&display=swap" rel="stylesheet">
-
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-
-body{
-font-family:Poppins,sans-serif;
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:flex-start;
-padding-top:40px;
-background:linear-gradient(135deg,#1e3a8a,#9333ea);
-}
-
-.phone{
-width:370px;
-max-width:95%;
-background:rgba(255,255,255,0.08);
-backdrop-filter:blur(20px);
-border-radius:30px;
-padding:25px;
-color:white;
-box-shadow:0 25px 60px rgba(0,0,0,0.5);
-display:flex;
-flex-direction:column;
-}
-
-.header{
-text-align:center;
-margin-bottom:20px;
-}
-
-textarea{
-width:100%;
-height:130px;
-border:none;
-border-radius:15px;
-padding:15px;
-font-size:15px;
-background:rgba(255,255,255,0.1);
-color:white;
-resize:none;
-outline:none;
-}
-
-.buttons{
-display:flex;
-gap:10px;
-margin-top:10px;
-}
-
-button{
-flex:1;
-padding:10px;
-border:none;
-border-radius:10px;
-font-weight:500;
-cursor:pointer;
-}
-
-.clear{background:#ef4444;color:white;}
-.copy{background:#22c55e;color:white;}
-
-.output{
-margin-top:20px;
-background:rgba(0,0,0,0.25);
-border-radius:15px;
-padding:15px;
-min-height:100px;
-}
-
-.baybayin{
-font-family:"Noto Sans Tagalog";
-font-size:22px;
-line-height:1.6;
-word-wrap:break-word;
-}
-
-.footer{
-text-align:center;
-font-size:11px;
-margin-top:10px;
-opacity:.8;
-}
-
-.creator{
-color:#38bdf8;
-font-weight:600;
-cursor:pointer;
-text-decoration:underline;
-}
-
-.creator:hover{
-color:#f59e0b;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Baybayin Translator</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    .message-box {
+      padding: 20px;
+      border-radius: 10px;
+      background-color: #1e1e1e;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    h1 {
+      color: red;
+    }
+  </style>
 </head>
-
 <body>
-
-<div class="phone">
-
-<div class="header">
-<h2>Baybayin Translator</h2>
-<p>Filipino → Baybayin</p>
-</div>
-
-<textarea id="inputText" placeholder="Type text..." oninput="translateText()"></textarea>
-
-<div class="buttons">
-<button class="clear" onclick="clearText()">Clear</button>
-<button class="copy" onclick="copyText()">Copy</button>
-</div>
-
-<div class="output">
-<div id="outputText" class="baybayin"></div>
-</div>
-
-<div class="footer">
-Developed by <span class="creator" onclick="visitDeveloperSocial()">Erick Baliber</span>
-</div>
-
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-// Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyDjNGDQDHMxtceYqmm8xC15TSEyXVChin0",
-  authDomain: "baybayintranslator-f642e.firebaseapp.com",
-  databaseURL: "https://baybayintranslator-f642e-default-rtdb.firebaseio.com",
-  projectId: "baybayintranslator-f642e",
-  storageBucket: "baybayintranslator-f642e.appspot.com",
-  messagingSenderId: "103896693063",
-  appId: "1:103896693063:web:6f8d854e7fe46c2a1b3462"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// Baybayin map
-const map = {
-a:"ᜀ",b:"ᜊ",k:"ᜃ",d:"ᜇ",e:"ᜁ",g:"ᜄ",h:"ᜑ",i:"ᜁ",
-l:"ᜎ",m:"ᜋ",n:"ᜈ",o:"ᜂ",p:"ᜉ",r:"ᜇ",s:"ᜐ",t:"ᜆ",
-u:"ᜂ",w:"ᜏ",y:"ᜌ"
-};
-
-let timeout;
-let lastSaved = "";
-
-// translate
-window.translateText = function(){
-
-let input = document.getElementById("inputText").value.toLowerCase();
-let output = "";
-
-for(let char of input){
-output += map[char] || char;
-}
-
-document.getElementById("outputText").textContent = output;
-
-// debounce save
-clearTimeout(timeout);
-
-timeout = setTimeout(() => {
-if(input.trim() !== "" && input !== lastSaved){
-saveToFirebase(input, output);
-lastSaved = input;
-}
-}, 1000);
-}
-
-// save to Firebase
-function saveToFirebase(input, output){
-push(ref(db, "translations"), {
-input: input,
-output: output,
-time: Date.now()
-});
-}
-
-// clear
-window.clearText = function(){
-document.getElementById("inputText").value = "";
-document.getElementById("outputText").textContent = "";
-}
-
-// copy
-window.copyText = function(){
-let text = document.getElementById("outputText").textContent;
-navigator.clipboard.writeText(text);
-alert("Copied!");
-}
-
-// link
-window.visitDeveloperSocial = function(){
-window.open("https://www.facebook.com/BaliberErick", "_blank");
-}
-</script>
-
+  <div class="message-box">
+    <h1>⚠️ App Unavailable</h1>
+    <p>This app is no longer available.</p>
+  </div>
 </body>
 </html>
