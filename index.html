@@ -3,105 +3,213 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Baybayin Translator</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Noto+Sans+Tagalog&display=swap" rel="stylesheet">
+
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', Arial, sans-serif;
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+font-family:Poppins,sans-serif;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:flex-start;
+padding-top:40px;
+background:linear-gradient(135deg,#1e3a8a,#9333ea);
 }
 
-body {
-  background: #0f0f0f;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+.phone{
+width:370px;
+max-width:95%;
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(20px);
+border-radius:30px;
+padding:25px;
+color:white;
+box-shadow:0 25px 60px rgba(0,0,0,0.5);
+display:flex;
+flex-direction:column;
 }
 
-.container {
-  text-align: center;
-  max-width: 350px;
-  padding: 25px;
-  border-radius: 16px;
-  background: #1c1c1e;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+.header{
+text-align:center;
+margin-bottom:20px;
 }
 
-.icon {
-  font-size: 60px;
-  margin-bottom: 15px;
+textarea{
+width:100%;
+height:130px;
+border:none;
+border-radius:15px;
+padding:15px;
+font-size:15px;
+background:rgba(255,255,255,0.1);
+color:white;
+resize:none;
+outline:none;
 }
 
-h1 {
-  font-size: 22px;
-  margin-bottom: 10px;
+.buttons{
+display:flex;
+gap:10px;
+margin-top:10px;
 }
 
-p {
-  font-size: 14px;
-  color: #b0b0b0;
-  margin-bottom: 25px;
+button{
+flex:1;
+padding:10px;
+border:none;
+border-radius:10px;
+font-weight:500;
+cursor:pointer;
 }
 
-button {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: #ff3b30;
-  color: white;
-  font-size: 15px;
-  cursor: pointer;
-  transition: 0.2s;
+.clear{background:#ef4444;color:white;}
+.copy{background:#22c55e;color:white;}
+
+.output{
+margin-top:20px;
+background:rgba(0,0,0,0.25);
+border-radius:15px;
+padding:15px;
+min-height:100px;
 }
 
-button:hover {
-  opacity: 0.85;
+.baybayin{
+font-family:"Noto Sans Tagalog";
+font-size:22px;
+line-height:1.6;
+word-wrap:break-word;
 }
 
-.footer {
-  margin-top: 15px;
-  font-size: 11px;
-  color: #666;
+.footer{
+text-align:center;
+font-size:11px;
+margin-top:10px;
+opacity:.8;
+}
+
+.creator{
+color:#38bdf8;
+font-weight:600;
+cursor:pointer;
+text-decoration:underline;
+}
+
+.creator:hover{
+color:#f59e0b;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <div class="icon">⚠️</div>
+<div class="phone">
 
-  <h1>App No Longer Available</h1>
-
-  <p>
-    Baybayin Translator is no longer supported.<br>
-    Please uninstall the app or visit our website for more information.
-  </p>
-
-  <button onclick="exitApp()">Exit App</button>
-
-  <div class="footer">
-    Version 2.0 • Service Ended
-  </div>
+<div class="header">
+<h2>Baybayin Translator</h2>
+<p>Filipino → Baybayin</p>
 </div>
 
-<script>
-function exitApp() {
-  // For Android WebView / APK
-  if (navigator.app) {
-    navigator.app.exitApp();
-  } else if (window.close) {
-    window.close();
-  } else {
-    alert("You can now close the app.");
-  }
+<textarea id="inputText" placeholder="Type text..." oninput="translateText()"></textarea>
+
+<div class="buttons">
+<button class="clear" onclick="clearText()">Clear</button>
+<button class="copy" onclick="copyText()">Copy</button>
+</div>
+
+<div class="output">
+<div id="outputText" class="baybayin"></div>
+</div>
+
+<div class="footer">
+Developed by <span class="creator" onclick="visitDeveloperSocial()">Erick Baliber</span>
+</div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyDjNGDQDHMxtceYqmm8xC15TSEyXVChin0",
+  authDomain: "baybayintranslator-f642e.firebaseapp.com",
+  databaseURL: "https://baybayintranslator-f642e-default-rtdb.firebaseio.com",
+  projectId: "baybayintranslator-f642e",
+  storageBucket: "baybayintranslator-f642e.appspot.com",
+  messagingSenderId: "103896693063",
+  appId: "1:103896693063:web:6f8d854e7fe46c2a1b3462"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// Baybayin map
+const map = {
+a:"ᜀ",b:"ᜊ",k:"ᜃ",d:"ᜇ",e:"ᜁ",g:"ᜄ",h:"ᜑ",i:"ᜁ",
+l:"ᜎ",m:"ᜋ",n:"ᜈ",o:"ᜂ",p:"ᜉ",r:"ᜇ",s:"ᜐ",t:"ᜆ",
+u:"ᜂ",w:"ᜏ",y:"ᜌ"
+};
+
+let timeout;
+let lastSaved = "";
+
+// translate
+window.translateText = function(){
+
+let input = document.getElementById("inputText").value.toLowerCase();
+let output = "";
+
+for(let char of input){
+output += map[char] || char;
+}
+
+document.getElementById("outputText").textContent = output;
+
+// debounce save
+clearTimeout(timeout);
+
+timeout = setTimeout(() => {
+if(input.trim() !== "" && input !== lastSaved){
+saveToFirebase(input, output);
+lastSaved = input;
+}
+}, 1000);
+}
+
+// save to Firebase
+function saveToFirebase(input, output){
+push(ref(db, "translations"), {
+input: input,
+output: output,
+time: Date.now()
+});
+}
+
+// clear
+window.clearText = function(){
+document.getElementById("inputText").value = "";
+document.getElementById("outputText").textContent = "";
+}
+
+// copy
+window.copyText = function(){
+let text = document.getElementById("outputText").textContent;
+navigator.clipboard.writeText(text);
+alert("Copied!");
+}
+
+// link
+window.visitDeveloperSocial = function(){
+window.open("https://www.facebook.com/BaliberErick", "_blank");
 }
 </script>
 
 </body>
   </html>
+  
